@@ -188,7 +188,7 @@ export function createLiquidityPosition(
   return liquidityTokenBalance as LiquidityPosition;
 }
 
-export function createUser(address: Address): void {
+export function createUser(address: Address): User {
   let user = User.load(address.toHexString());
   if (user === null) {
     user = new User(address.toHexString());
@@ -197,6 +197,7 @@ export function createUser(address: Address): void {
     user.swapCount = ZERO_BD;
     user.save();
   }
+  return user;
 }
 
 export function createLiquiditySnapshot(

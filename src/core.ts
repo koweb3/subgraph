@@ -470,9 +470,7 @@ export function handleSwap(event: Swap): void {
   let pair = Pair.load(event.address.toHexString()) as Pair;
   let token0 = Token.load(pair.token0) as Token;
   let token1 = Token.load(pair.token1) as Token;
-
-  createUser(event.params.sender);
-  let userEntity = new User(event.params.sender.toHexString());
+  let userEntity = createUser(event.params.sender);
 
   let amount0In = convertTokenToDecimal(
     event.params.amount0In,
@@ -558,9 +556,7 @@ export function handleSwap(event: Swap): void {
     usdcSwapped = amount1In || amount1Out;
   }
 
-  userEntity.usdcSwapped = (userEntity.usdcSwapped || ZERO_BD).plus(
-    usdcSwapped
-  );
+  userEntity.usdcSwapped = userEntity.usdcSwapped.plus(usdcSwapped);
   userEntity.swapCount = userEntity.swapCount.plus(ONE_BD);
   userEntity.usdSwapped = userEntity.usdSwapped.plus(trackedAmountUSD);
 
