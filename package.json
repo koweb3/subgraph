@@ -4,7 +4,7 @@
   "scripts": {
     "codegen": "graph codegen",
     "build": "graph build",
-    "deploy": "graph deploy --studio --version-label v14 zkone",
+    "deploy": "graph deploy --studio --version-label v15 zkone",
     "create-local": "graph create --node http://localhost:8020/ zkone",
     "remove-local": "graph remove --node http://localhost:8020/ zkone",
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 zkone",
