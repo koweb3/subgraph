@@ -377,7 +377,7 @@ export function handleMint(event: Mint): void {
   // update the LP position
   let liquidityPosition = createLiquidityPosition(
     event.address,
-    mint.to as Address
+    Address.fromBytes(mint.to)
   );
   liquidityPosition.addLiquidityCount = liquidityPosition.addLiquidityCount.plus(
     ONE_BD
