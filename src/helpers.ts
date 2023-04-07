@@ -178,6 +178,8 @@ export function createLiquidityPosition(
     liquidityTokenBalance.liquidityTokenBalance = ZERO_BD;
     liquidityTokenBalance.pair = exchange.toHexString();
     liquidityTokenBalance.user = user.toHexString();
+    liquidityTokenBalance.addLiquidityCount = ZERO_BD;
+    liquidityTokenBalance.removeLiquidityCount = ZERO_BD;
     liquidityTokenBalance.save();
     pair.save();
   }
