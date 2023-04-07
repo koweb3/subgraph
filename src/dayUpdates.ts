@@ -17,7 +17,7 @@ export function updatezkOneDayData(event: ethereum.Event): ZKOneDayData {
   let timestamp = event.block.timestamp.toI32();
   let dayID = timestamp / 86400;
   let dayStartTimestamp = dayID * 86400;
-  let zkOneDayData = ZKOneDayData.load(dayID.toString()) as ZKOneDayData;
+  let zkOneDayData = ZKOneDayData.load(dayID.toString());
   if (zkOneDayData === null) {
     zkOneDayData = new ZKOneDayData(dayID.toString()) as ZKOneDayData;
     zkOneDayData.date = dayStartTimestamp;
@@ -45,7 +45,7 @@ export function updatePairDayData(event: ethereum.Event): PairDayData {
     .concat("-")
     .concat(BigInt.fromI32(dayID).toString());
   let pair = Pair.load(event.address.toHexString()) as Pair;
-  let pairDayData = PairDayData.load(dayPairID) as PairDayData;
+  let pairDayData = PairDayData.load(dayPairID);
   if (pairDayData === null) {
     pairDayData = new PairDayData(dayPairID);
     pairDayData.date = dayStartTimestamp;
@@ -111,7 +111,7 @@ export function updateTokenDayData(
     .concat("-")
     .concat(BigInt.fromI32(dayID).toString());
 
-  let tokenDayData = TokenDayData.load(tokenDayID) as TokenDayData;
+  let tokenDayData = TokenDayData.load(tokenDayID);
   if (tokenDayData === null) {
     tokenDayData = new TokenDayData(tokenDayID);
     tokenDayData.date = dayStartTimestamp;

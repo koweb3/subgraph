@@ -170,7 +170,7 @@ export function createLiquidityPosition(
     .toHexString()
     .concat("-")
     .concat(user.toHexString());
-  let liquidityTokenBalance = LiquidityPosition.load(id) as LiquidityPosition;
+  let liquidityTokenBalance = LiquidityPosition.load(id);
   if (liquidityTokenBalance === null) {
     let pair = Pair.load(exchange.toHexString()) as Pair;
     pair.liquidityProviderCount = pair.liquidityProviderCount.plus(ONE_BI);

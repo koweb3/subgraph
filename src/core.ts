@@ -75,7 +75,7 @@ export function handleTransfer(event: Transfer): void {
   let value = convertTokenToDecimal(event.params.value, BI_18);
 
   // get or create transaction
-  let transaction = Transaction.load(transactionHash) as Transaction;
+  let transaction = Transaction.load(transactionHash);
   if (transaction === null) {
     transaction = new Transaction(transactionHash);
     transaction.blockNumber = event.block.number;
@@ -391,9 +391,7 @@ export function handleMint(event: Mint): void {
 }
 
 export function handleBurn(event: Burn): void {
-  let transaction = Transaction.load(
-    event.transaction.hash.toHexString()
-  ) as Transaction;
+  let transaction = Transaction.load(event.transaction.hash.toHexString());
 
   // safety check
   if (transaction === null) {
@@ -566,9 +564,7 @@ export function handleSwap(event: Swap): void {
   token1.save();
   zkOne.save();
 
-  let transaction = Transaction.load(
-    event.transaction.hash.toHexString()
-  ) as Transaction;
+  let transaction = Transaction.load(event.transaction.hash.toHexString());
   if (transaction === null) {
     transaction = new Transaction(event.transaction.hash.toHexString());
     transaction.blockNumber = event.block.number;
