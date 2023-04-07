@@ -192,6 +192,7 @@ export function createUser(address: Address): void {
     user = new User(address.toHexString());
     user.usdSwapped = ZERO_BD;
     user.usdcSwapped = ZERO_BD;
+    user.swapCount = ZERO_BD;
     user.save();
   }
 }
