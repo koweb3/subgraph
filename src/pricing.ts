@@ -14,7 +14,7 @@ const USDC_WETH_PAIR = "0x80115c708E12eDd42E504c1cD52Aea96C547c05c"; // created 
 
 export function getEthPriceInUSD(): BigDecimal {
   // fetch eth prices for each stablecoin
-  let usdcPair = Pair.load(USDC_WETH_PAIR) as Pair; // usdc is token0
+  let usdcPair = Pair.load(USDC_WETH_PAIR); // usdc is token0
 
   // all 3 have been created
   if (usdcPair !== null) {

@@ -46,7 +46,9 @@ import {
 } from "./helpers";
 
 function isCompleteMint(mintId: string): boolean {
-  return (MintEvent.load(mintId) as MintEvent).sender !== null; // sufficient checks
+  const minte = MintEvent.load(mintId);
+  if (minte === null) return false;
+  return minte.sender !== null; // sufficient checks
 }
 
 export function handleTransfer(event: Transfer): void {
