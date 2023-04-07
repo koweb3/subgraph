@@ -36,12 +36,12 @@ export function handleNewPair(event: PairCreated): void {
   factory.save();
   log.info("factory save", []);
   // create the tokens
-  let token0 = Token.load(event.params.token0.toHexString()) as Token;
-  let token1 = Token.load(event.params.token1.toHexString()) as Token;
+  let token0 = Token.load(event.params.token0.toHexString());
+  let token1 = Token.load(event.params.token1.toHexString());
   log.info("load token", []);
   // fetch info if null
   if (token0 === null) {
-    token0 = new Token(event.params.token0.toHexString()) as Token;
+    token0 = new Token(event.params.token0.toHexString());
     token0.symbol = fetchTokenSymbol(event.params.token0);
     token0.name = fetchTokenName(event.params.token0);
     token0.totalSupply = fetchTokenTotalSupply(event.params.token0);
@@ -85,7 +85,7 @@ export function handleNewPair(event: PairCreated): void {
     token1.txCount = ZERO_BI;
   }
 
-  let pair = new Pair(event.params.pair.toHexString()) as Pair;
+  let pair = new Pair(event.params.pair.toHexString());
 
   log.info("new pair", []);
   pair.token0 = token0.id;
