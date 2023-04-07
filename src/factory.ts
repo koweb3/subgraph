@@ -1,6 +1,6 @@
 /* eslint-disable prefer-const */
 import { log } from "@graphprotocol/graph-ts";
-import { PairCreated } from "../generated/Factory/Factory";
+import { PairCreated } from "../generated/factory/Factory";
 import { Bundle, Pair, Token, zkOneFactory } from "../generated/schema";
 import { Pair as PairTemplate } from "../generated/templates";
 import {

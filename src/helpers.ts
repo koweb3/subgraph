@@ -6,9 +6,9 @@ import {
   Address,
   ethereum,
 } from "@graphprotocol/graph-ts";
-import { ERC20 } from "../generated/Factory/ERC20";
-import { ERC20SymbolBytes } from "../generated/Factory/ERC20SymbolBytes";
-import { ERC20NameBytes } from "../generated/Factory/ERC20NameBytes";
+import { ERC20 } from "../generated/factory/ERC20";
+import { ERC20SymbolBytes } from "../generated/factory/ERC20SymbolBytes";
+import { ERC20NameBytes } from "../generated/factory/ERC20NameBytes";
 import {
   User,
   Bundle,
@@ -154,12 +154,12 @@ export function fetchTokenDecimals(tokenAddress: Address): BigInt {
 
   let contract = ERC20.bind(tokenAddress);
   // try types uint8 for decimals
-  let decimalValue = null;
+  let decimalValue = 0;
   let decimalResult = contract.try_decimals();
   if (!decimalResult.reverted) {
     decimalValue = decimalResult.value;
   }
-  return BigInt.fromI32(decimalValue as i32);
+  return BigInt.fromI32(decimalValue);
 }
 
 export function createLiquidityPosition(
