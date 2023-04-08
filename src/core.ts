@@ -573,6 +573,7 @@ export function handleSwap(event: Swap): void {
   token0.save();
   token1.save();
   zkOne.save();
+  userEntity.save();
 
   let transaction = Transaction.load(event.transaction.hash.toHexString());
   if (transaction === null) {

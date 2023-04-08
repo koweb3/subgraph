@@ -10,7 +10,7 @@ import {
 } from "./helpers";
 
 const WETH_ADDRESS = "0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91";
-const USDC_WETH_PAIR = "0x80115c708E12eDd42E504c1cD52Aea96C547c05c"; // created 10008355
+const USDC_WETH_PAIR = "0xf79803df002c00b941203d2a2e88ebcf17385a9a"; // created 10008355
 
 export function getEthPriceInUSD(): BigDecimal {
   // fetch eth prices for each stablecoin
