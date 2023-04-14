@@ -1,7 +1,7 @@
 /* eslint-disable prefer-const */
 import { log } from "@graphprotocol/graph-ts";
 import { PairCreated } from "../generated/factory/Factory";
-import { Bundle, Pair, Token, zkOneFactory } from "../generated/schema";
+import { Bundle, Pair, Token, koFactory } from "../generated/schema";
 import { Pair as PairTemplate } from "../generated/templates";
 import {
   FACTORY_ADDRESS,
@@ -15,10 +15,10 @@ import {
 
 export function handleNewPair(event: PairCreated): void {
   // load factory (create if first exchange)
-  let factory = zkOneFactory.load(FACTORY_ADDRESS);
+  let factory = koFactory.load(FACTORY_ADDRESS);
   log.info("factory", []);
   if (factory === null) {
-    factory = new zkOneFactory(FACTORY_ADDRESS);
+    factory = new koFactory(FACTORY_ADDRESS);
     factory.pairCount = 0;
     factory.totalVolumeETH = ZERO_BD;
     factory.totalLiquidityETH = ZERO_BD;
@@ -87,7 +87,7 @@ export function handleNewPair(event: PairCreated): void {
 
   let pair = new Pair(event.params.pair.toHexString());
 
-  log.info("new pair", []);
+  log.info(`new pair ${event.params.pair.toHexString()}`, []);
   pair.token0 = token0.id;
   pair.token1 = token1.id;
   pair.liquidityProviderCount = ZERO_BI;

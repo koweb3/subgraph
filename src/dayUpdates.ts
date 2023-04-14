@@ -6,34 +6,34 @@ import {
   PairDayData,
   Token,
   TokenDayData,
-  ZKOneDayData,
-  zkOneFactory,
+  KODayData,
+  koFactory,
 } from "../generated/schema";
 import { PairHourData } from "./../generated/schema";
 import { FACTORY_ADDRESS, ONE_BI, ZERO_BD, ZERO_BI } from "./helpers";
 
-export function updatezkOneDayData(event: ethereum.Event): ZKOneDayData {
-  let zkOne = zkOneFactory.load(FACTORY_ADDRESS) as zkOneFactory;
+export function updatekoDayData(event: ethereum.Event): KODayData {
+  let ko = koFactory.load(FACTORY_ADDRESS) as koFactory;
   let timestamp = event.block.timestamp.toI32();
   let dayID = timestamp / 86400;
   let dayStartTimestamp = dayID * 86400;
-  let zkOneDayData = ZKOneDayData.load(dayID.toString());
-  if (zkOneDayData === null) {
-    zkOneDayData = new ZKOneDayData(dayID.toString()) as ZKOneDayData;
-    zkOneDayData.date = dayStartTimestamp;
-    zkOneDayData.dailyVolumeUSD = ZERO_BD;
-    zkOneDayData.dailyVolumeETH = ZERO_BD;
-    zkOneDayData.totalVolumeUSD = ZERO_BD;
-    zkOneDayData.totalVolumeETH = ZERO_BD;
-    zkOneDayData.dailyVolumeUntracked = ZERO_BD;
+  let koDayData = KODayData.load(dayID.toString());
+  if (koDayData === null) {
+    koDayData = new KODayData(dayID.toString()) as KODayData;
+    koDayData.date = dayStartTimestamp;
+    koDayData.dailyVolumeUSD = ZERO_BD;
+    koDayData.dailyVolumeETH = ZERO_BD;
+    koDayData.totalVolumeUSD = ZERO_BD;
+    koDayData.totalVolumeETH = ZERO_BD;
+    koDayData.dailyVolumeUntracked = ZERO_BD;
   }
 
-  zkOneDayData.totalLiquidityUSD = zkOne.totalLiquidityUSD;
-  zkOneDayData.totalLiquidityETH = zkOne.totalLiquidityETH;
-  zkOneDayData.txCount = zkOne.txCount;
-  zkOneDayData.save();
+  koDayData.totalLiquidityUSD = ko.totalLiquidityUSD;
+  koDayData.totalLiquidityETH = ko.totalLiquidityETH;
+  koDayData.txCount = ko.txCount;
+  koDayData.save();
 
-  return zkOneDayData as ZKOneDayData;
+  return koDayData as KODayData;
 }
 
 export function updatePairDayData(event: ethereum.Event): PairDayData {

@@ -5,11 +5,12 @@ import {
   store,
   Address,
   Bytes,
+  log,
 } from "@graphprotocol/graph-ts";
 import {
   Pair,
   Token,
-  zkOneFactory,
+  koFactory,
   Transaction,
   Mint as MintEvent,
   Burn as BurnEvent,
@@ -28,7 +29,7 @@ import {
 import {
   updatePairDayData,
   updateTokenDayData,
-  updatezkOneDayData,
+  updatekoDayData,
   updatePairHourData,
 } from "./dayUpdates";
 import {
@@ -66,7 +67,7 @@ export function handleTransfer(event: Transfer): void {
     return;
   }
 
-  let factory = zkOneFactory.load(FACTORY_ADDRESS) as zkOneFactory;
+  let factory = koFactory.load(FACTORY_ADDRESS) as koFactory;
   let transactionHash = event.transaction.hash.toHexString();
 
   // user stats
@@ -260,10 +261,10 @@ export function handleSync(event: Sync): void {
   let pair = Pair.load(event.address.toHex()) as Pair;
   let token0 = Token.load(pair.token0) as Token;
   let token1 = Token.load(pair.token1) as Token;
-  let zkOne = zkOneFactory.load(FACTORY_ADDRESS) as zkOneFactory;
+  let ko = koFactory.load(FACTORY_ADDRESS) as koFactory;
 
   // reset factory liquidity by subtracting onluy tarcked liquidity
-  zkOne.totalLiquidityETH = zkOne.totalLiquidityETH.minus(
+  ko.totalLiquidityETH = ko.totalLiquidityETH.minus(
     pair.trackedReserveETH as BigDecimal
   );
 
@@ -295,6 +296,7 @@ export function handleSync(event: Sync): void {
 
   // get tracked liquidity - will be 0 if neither is in whitelist
   let trackedLiquidityETH: BigDecimal;
+
   if (bundle.ethPrice.notEqual(ZERO_BD)) {
     trackedLiquidityETH = getTrackedLiquidityUSD(
       pair.reserve0,
@@ -314,8 +316,8 @@ export function handleSync(event: Sync): void {
   pair.reserveUSD = pair.reserveETH.times(bundle.ethPrice);
 
   // use tracked amounts globally
-  zkOne.totalLiquidityETH = zkOne.totalLiquidityETH.plus(trackedLiquidityETH);
-  zkOne.totalLiquidityUSD = zkOne.totalLiquidityETH.times(bundle.ethPrice);
+  ko.totalLiquidityETH = ko.totalLiquidityETH.plus(trackedLiquidityETH);
+  ko.totalLiquidityUSD = ko.totalLiquidityETH.times(bundle.ethPrice);
 
   // now correctly set liquidity amounts for each token
   token0.totalLiquidity = token0.totalLiquidity.plus(pair.reserve0);
@@ -323,7 +325,7 @@ export function handleSync(event: Sync): void {
 
   // save entities
   pair.save();
-  zkOne.save();
+  ko.save();
   token0.save();
   token1.save();
 }
@@ -337,7 +339,7 @@ export function handleMint(event: Mint): void {
   let mint = MintEvent.load(mints[mints.length - 1]) as MintEvent;
 
   let pair = Pair.load(event.address.toHex()) as Pair;
-  let zkOne = zkOneFactory.load(FACTORY_ADDRESS) as zkOneFactory;
+  let ko = koFactory.load(FACTORY_ADDRESS) as koFactory;
 
   let token0 = Token.load(pair.token0) as Token;
   let token1 = Token.load(pair.token1) as Token;
@@ -365,13 +367,13 @@ export function handleMint(event: Mint): void {
 
   // update txn counts
   pair.txCount = pair.txCount.plus(ONE_BI);
-  zkOne.txCount = zkOne.txCount.plus(ONE_BI);
+  ko.txCount = ko.txCount.plus(ONE_BI);
 
   // save entities
   token0.save();
   token1.save();
   pair.save();
-  zkOne.save();
+  ko.save();
 
   mint.sender = event.params.sender;
   mint.amount0 = token0Amount as BigDecimal;
@@ -393,7 +395,7 @@ export function handleMint(event: Mint): void {
   // update day entities
   updatePairDayData(event);
   updatePairHourData(event);
-  updatezkOneDayData(event);
+  updatekoDayData(event);
   updateTokenDayData(token0 as Token, event);
   updateTokenDayData(token1 as Token, event);
 }
@@ -410,7 +412,7 @@ export function handleBurn(event: Burn): void {
   let burn = BurnEvent.load(burns[burns.length - 1]) as BurnEvent;
 
   let pair = Pair.load(event.address.toHex()) as Pair;
-  let zkOne = zkOneFactory.load(FACTORY_ADDRESS) as zkOneFactory;
+  let ko = koFactory.load(FACTORY_ADDRESS) as koFactory;
 
   //update token info
   let token0 = Token.load(pair.token0) as Token;
@@ -436,14 +438,14 @@ export function handleBurn(event: Burn): void {
     .times(bundle.ethPrice);
 
   // update txn counts
-  zkOne.txCount = zkOne.txCount.plus(ONE_BI);
+  ko.txCount = ko.txCount.plus(ONE_BI);
   pair.txCount = pair.txCount.plus(ONE_BI);
 
   // update global counter and save
   token0.save();
   token1.save();
   pair.save();
-  zkOne.save();
+  ko.save();
 
   // update burn
   // burn.sender = event.params.sender
@@ -469,7 +471,7 @@ export function handleBurn(event: Burn): void {
   // update day entities
   updatePairDayData(event);
   updatePairHourData(event);
-  updatezkOneDayData(event);
+  updatekoDayData(event);
   updateTokenDayData(token0 as Token, event);
   updateTokenDayData(token1 as Token, event);
 }
@@ -478,7 +480,7 @@ export function handleSwap(event: Swap): void {
   let pair = Pair.load(event.address.toHexString()) as Pair;
   let token0 = Token.load(pair.token0) as Token;
   let token1 = Token.load(pair.token1) as Token;
-  let userEntity = createUser(event.params.sender);
+  let userEntity = createUser(event.transaction.from);
 
   let amount0In = convertTokenToDecimal(
     event.params.amount0In,
@@ -550,18 +552,21 @@ export function handleSwap(event: Swap): void {
   pair.save();
 
   // update global values, only used tracked amounts for volume
-  let zkOne = zkOneFactory.load(FACTORY_ADDRESS) as zkOneFactory;
-  zkOne.totalVolumeUSD = zkOne.totalVolumeUSD.plus(trackedAmountUSD);
-  zkOne.totalVolumeETH = zkOne.totalVolumeETH.plus(trackedAmountETH);
-  zkOne.untrackedVolumeUSD = zkOne.untrackedVolumeUSD.plus(derivedAmountUSD);
-  zkOne.txCount = zkOne.txCount.plus(ONE_BI);
+  let ko = koFactory.load(FACTORY_ADDRESS) as koFactory;
+  ko.totalVolumeUSD = ko.totalVolumeUSD.plus(trackedAmountUSD);
+  ko.totalVolumeETH = ko.totalVolumeETH.plus(trackedAmountETH);
+  ko.untrackedVolumeUSD = ko.untrackedVolumeUSD.plus(derivedAmountUSD);
+  ko.txCount = ko.txCount.plus(ONE_BI);
 
   let usdcSwapped = ZERO_BD;
+
   // 入金是usdc
-  if (token0.id.toLowerCase() === USDC_ADDRESS.toLowerCase()) {
-    usdcSwapped = amount0In || amount0Out;
-  } else if (token1.id.toLowerCase() === USDC_ADDRESS.toLowerCase()) {
-    usdcSwapped = amount1In || amount1Out;
+  if (Address.fromString(token0.id).equals(Address.fromString(USDC_ADDRESS))) {
+    usdcSwapped = amount0In.gt(amount0Out) ? amount0In : amount0Out;
+  } else if (
+    Address.fromString(token1.id).equals(Address.fromString(USDC_ADDRESS))
+  ) {
+    usdcSwapped = amount1In.gt(amount1Out) ? amount1In : amount1Out;
   }
 
   userEntity.usdcSwapped = userEntity.usdcSwapped.plus(usdcSwapped);
@@ -572,7 +577,7 @@ export function handleSwap(event: Swap): void {
   pair.save();
   token0.save();
   token1.save();
-  zkOne.save();
+  ko.save();
   userEntity.save();
 
   let transaction = Transaction.load(event.transaction.hash.toHexString());
@@ -621,21 +626,17 @@ export function handleSwap(event: Swap): void {
   // update day entities
   let pairDayData = updatePairDayData(event);
   let pairHourData = updatePairHourData(event);
-  let zkOneDayData = updatezkOneDayData(event);
+  let koDayData = updatekoDayData(event);
   let token0DayData = updateTokenDayData(token0 as Token, event);
   let token1DayData = updateTokenDayData(token1 as Token, event);
 
   // swap specific updating
-  zkOneDayData.dailyVolumeUSD = zkOneDayData.dailyVolumeUSD.plus(
-    trackedAmountUSD
-  );
-  zkOneDayData.dailyVolumeETH = zkOneDayData.dailyVolumeETH.plus(
-    trackedAmountETH
-  );
-  zkOneDayData.dailyVolumeUntracked = zkOneDayData.dailyVolumeUntracked.plus(
+  koDayData.dailyVolumeUSD = koDayData.dailyVolumeUSD.plus(trackedAmountUSD);
+  koDayData.dailyVolumeETH = koDayData.dailyVolumeETH.plus(trackedAmountETH);
+  koDayData.dailyVolumeUntracked = koDayData.dailyVolumeUntracked.plus(
     derivedAmountUSD
   );
-  zkOneDayData.save();
+  koDayData.save();
 
   // swap specific updating for pair
   pairDayData.dailyVolumeToken0 = pairDayData.dailyVolumeToken0.plus(
